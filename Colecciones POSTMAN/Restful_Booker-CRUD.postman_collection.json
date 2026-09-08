@@ -1,0 +1,533 @@
+{
+  "info": {
+    "_postman_id": "ca75e49e-9792-4da6-be28-e2ab18cb2193",
+    "name": "Restful_Booker-CRUD",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29355397"
+  },
+  "item": [
+    {
+      "name": "Flujo_CRUD-Reservación",
+      "item": [
+        {
+          "name": "00 - Verificar API",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La API está disponible\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta confirma disponibilidad\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.eql(\"Created\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ping",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "ping"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01 - Crear token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "pm.environment.set(\"auth_token\", respuesta.token);\r",
+                  "\r",
+                  "pm.test(\"Código de respuesta 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene un token válido\", function () {\r",
+                  "    pm.expect(respuesta).to.have.property(\"token\");\r",
+                  "    pm.expect(respuesta.token).to.be.a(\"string\");\r",
+                  "    pm.expect(respuesta.token).to.not.be.empty;\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"admin\",\r\n  \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 - Crear reservación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "pm.environment.set(\"booking_id\", respuesta.bookingid);\r",
+                  "\r",
+                  "pm.environment.set(\r",
+                  "    \"booking_esperado\",\r",
+                  "    JSON.stringify(respuesta.booking)\r",
+                  ");\r",
+                  "\r",
+                  "pm.test(\"Código de respuesta 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene un bookingid\", function () {\r",
+                  "    pm.expect(respuesta).to.have.property(\"bookingid\");\r",
+                  "    pm.expect(respuesta.bookingid).to.be.a(\"number\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene los datos de la reservación\", function () {\r",
+                  "    pm.expect(respuesta).to.have.property(\"booking\");\r",
+                  "    pm.expect(respuesta.booking).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Los datos recibidos coinciden con los enviados\", function () {\r",
+                  "    const datosEnviados = JSON.parse(\r",
+                  "        pm.variables.replaceIn(pm.request.body.raw)\r",
+                  "    );\r",
+                  "    pm.expect(respuesta.booking).to.eql(datosEnviados);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const precioAleatorio = Math.floor(Math.random() * 901) + 100;\r",
+                  "pm.collectionVariables.set(\"totalprice\", precioAleatorio);\r",
+                  "\r",
+                  "const depositoAleatorio = Math.random() < 0.5;\r",
+                  "pm.collectionVariables.set(\"depositpaid\", depositoAleatorio);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"{{firstname}}\",\r\n  \"lastname\": \"{{lastname}}\",\r\n  \"totalprice\": {{totalprice}},\r\n  \"depositpaid\": {{depositpaid}},\r\n  \"bookingdates\": {\r\n    \"checkin\": \"{{checkin}}\",\r\n    \"checkout\": \"{{checkout}}\"\r\n},\r\n  \"additionalneeds\": \"{{additionalneeds}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/booking",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 - Consultar reservación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Código de respuesta 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Los datos consultados coinciden con la reservación creada\", function () {\r",
+                  "    const bookingEsperado = JSON.parse(\r",
+                  "        pm.environment.get(\"booking_esperado\")\r",
+                  "    );\r",
+                  "\r",
+                  "    pm.expect(respuesta).to.eql(bookingEsperado);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/booking/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 - Actualizar reservación completa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "pm.test(\"Código de respuesta 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene los datos actualizados\", function () {\r",
+                  "    pm.expect(respuesta).to.be.an(\"object\");\r",
+                  "    pm.expect(respuesta).to.have.property(\"firstname\");\r",
+                  "    pm.expect(respuesta).to.have.property(\"lastname\");\r",
+                  "    pm.expect(respuesta).to.have.property(\"bookingdates\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Los datos actualizados coinciden con los enviados\", function () {\r",
+                  "    const datosEnviados = JSON.parse(\r",
+                  "        pm.variables.replaceIn(pm.request.body.raw)\r",
+                  "    );\r",
+                  "    pm.expect(respuesta).to.eql(datosEnviados);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta tiene formato JSON\", function () {\r",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"El tiempo de respuesta es menor a 2000 ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "token={{auth_token}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "Cookie",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"firstname\": \"{{firstname}}\",\r\n\"lastname\": \"{{lastname}} Actualizado\",\r\n  \"totalprice\": {{totalprice}},\r\n  \"depositpaid\": {{depositpaid}},\r\n  \"bookingdates\": {\r\n    \"checkin\": \"{{checkin}}\",\r\n    \"checkout\": \"{{checkout}}\"\r\n},\r\n  \"additionalneeds\": \"{{additionalneeds}} Actualizado\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/booking/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 - Actualizar reservación parcial",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const respuesta = pm.response.json();\r",
+                  "pm.test(\"Código de respuesta 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta contiene los campos actualizados\", function () {\r",
+                  "    pm.expect(respuesta).to.be.an(\"object\");\r",
+                  "    pm.expect(respuesta).to.have.property(\"totalprice\");\r",
+                  "    pm.expect(respuesta).to.have.property(\"additionalneeds\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Los campos actualizados coinciden con los enviados\", function () {\r",
+                  "    const datosEnviados = JSON.parse(\r",
+                  "        pm.variables.replaceIn(pm.request.body.raw)\r",
+                  "    );\r",
+                  "    pm.expect(respuesta.totalprice).to.eql(datosEnviados.totalprice);\r",
+                  "    pm.expect(respuesta.additionalneeds).to.eql(datosEnviados.additionalneeds);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Los campos no modificados se conservan\", function () {\r",
+                  "    const depositoEsperado = JSON.parse(\r",
+                  "        String(pm.collectionVariables.get(\"depositpaid\"))\r",
+                  "    );\r",
+                  "    pm.expect(respuesta.firstname)\r",
+                  "        .to.eql(pm.iterationData.get(\"firstname\"));\r",
+                  "    pm.expect(respuesta.lastname)\r",
+                  "        .to.eql(pm.iterationData.get(\"lastname\") + \" Actualizado\");\r",
+                  "    pm.expect(respuesta.depositpaid)\r",
+                  "        .to.eql(depositoEsperado);\r",
+                  "    pm.expect(respuesta.bookingdates.checkin)\r",
+                  "        .to.eql(pm.iterationData.get(\"checkin\"));\r",
+                  "    pm.expect(respuesta.bookingdates.checkout)\r",
+                  "        .to.eql(pm.iterationData.get(\"checkout\"));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"El tiempo de respuesta es menor a 2000 ms\", function () {\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                  "});\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const precioAnterior = Number(\r",
+                  "    pm.collectionVariables.get(\"totalprice\")\r",
+                  ");\r",
+                  "\r",
+                  "const precioPatch = precioAnterior + 500;\r",
+                  "\r",
+                  "pm.collectionVariables.set(\"totalprice_patch\", precioPatch);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "token={{auth_token}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "Cookie",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"totalprice\": {{totalprice_patch}},\r\n  \"additionalneeds\": \"{{additionalneeds}} Actualizado en PATCH\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/booking/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06 - Eliminar reservación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Código de respuesta 201\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta confirma la eliminación\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.eql(\"Created\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "value",
+                  "value": "token={{auth_token}}",
+                  "type": "string"
+                },
+                {
+                  "key": "key",
+                  "value": "Cookie",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/booking/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07 - Validar reservación eliminada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"La reservación eliminada ya no existe\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"La respuesta confirma que la reservación no existe\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.eql(\"Not Found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/booking/{{booking_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "booking",
+                "{{booking_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "auth_secret_0yf2",
+      "secret": true
+    }
+  ]
+}
