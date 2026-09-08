@@ -1,13 +1,13 @@
 {
   "info": {
     "_postman_id": "ca75e49e-9792-4da6-be28-e2ab18cb2193",
-    "name": "Restful Booker - CRUD",
+    "name": "Restful_Booker-CRUD",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "29355397"
   },
   "item": [
     {
-      "name": "Flujo CRUD-Reservación",
+      "name": "Flujo_CRUD-Reservación",
       "item": [
         {
           "name": "00 - Verificar API",
