@@ -8,6 +8,22 @@ El proyecto cubre el ciclo de vida completo de una reservación (crear, consulta
 
 ---
 
+## Última ejecución
+
+| Métrica | Ejecutadas | Fallidas |
+|---------|-----------:|---------:|
+| Iteraciones | 5 | 0 |
+| Requests | 40 | 0 |
+| Test scripts | 40 | 0 |
+| Pre-request scripts | 15 | 0 |
+| **Aserciones** | **120** | **0** |
+
+Duración total: 9.1 s · Tiempo de respuesta promedio: 127 ms (mín. 111 ms, máx. 627 ms)
+
+El reporte HTML completo de esta corrida está en [`reports/resultado.html`](reports/resultado.html).
+
+---
+
 ## Qué valida esta suite
 
 | # | Request | Método | Qué comprueba |
@@ -52,12 +68,12 @@ Los datos de identidad y fechas provienen del CSV; el precio y el estado del dep
 ## Estructura del proyecto
 
 ```
-.
-├── Restful_Booker_-_CRUD.postman_collection.json   Colección con los 8 requests y sus tests
-├── Entorno_Restful_Booker.postman_environment.json Variables de entorno
-├── MOCK_DATA_BOOKER.csv                            Datos de prueba (5 registros)
-├── reports/                                        Salida de los reportes HTML
-└── README.md
+Newman/
+├── Restful_Booker-CRUD.postman_collection.json      Colección con los 8 requests y sus tests
+├── Entorno_Restful_Booker.postman_environment.json  Variables de entorno
+├── MOCK_DATA_BOOKER.csv                             Datos de prueba (5 registros)
+└── reports/
+    └── resultado.html                               Reporte de la última ejecución
 ```
 
 ### Variables de entorno
@@ -69,6 +85,10 @@ Los datos de identidad y fechas provienen del CSV; el precio y el estado del dep
 | `booking_id` | ID de la reservación creada, usado por los requests posteriores |
 | `booking_esperado` | Objeto completo de la reservación, para validar persistencia |
 
+Solo `base_url` tiene valor inicial. Las otras tres se pueblan en tiempo de ejecución mediante `pm.environment.set()`.
+
+> **Nota sobre valores en Postman.** El valor exportado en el archivo de entorno es el *Shared Value* (antes *Initial value*); el *Value* local no viaja en el export. Por eso las credenciales y tokens deben mantenerse solo en el valor local, para que no terminen versionados en el repositorio.
+
 ---
 
 ## Cómo ejecutar
@@ -78,7 +98,9 @@ Los datos de identidad y fechas provienen del CSV; el precio y el estado del dep
 1. Importar la colección: **File → Import** → seleccionar el archivo `.postman_collection.json`
 2. Importar el entorno por separado: **Environments → Import**
 3. Activar el entorno *Entorno Restful Booker*
-4. Abrir el **Collection Runner**, seleccionar la colección, cargar `MOCK_DATA_BOOKER.csv` como Data File y ejecutar
+4. Ejecutar los requests en orden, o correr la colección desde el **Collection Runner**
+
+> El uso de un archivo de datos (CSV) en el Collection Runner requiere un plan de pago de Postman. La ejecución dirigida por datos de este proyecto se hace con Newman, que no tiene esa restricción y además es la forma en que corre dentro del pipeline.
 
 ### Desde línea de comandos con Newman
 
@@ -89,8 +111,8 @@ npm install -g newman newman-reporter-htmlextra
 ```
 
 ```bash
-newman run "Restful_Booker_-_CRUD.postman_collection.json" \
-  -e "Entorno_Restful_Booker.postman_environment.json" \
+newman run Restful_Booker-CRUD.postman_collection.json \
+  -e Entorno_Restful_Booker.postman_environment.json \
   -d MOCK_DATA_BOOKER.csv \
   -r cli,htmlextra \
   --reporter-htmlextra-export reports/resultado.html
@@ -142,7 +164,7 @@ Ambos comportamientos están reflejados tal cual en las aserciones, para que la 
 
 Es un trade-off asumido: se gana el modelado fiel de un caso de uso real, se pierde la posibilidad de ejecución en paralelo y el aislamiento entre casos. En una suite de mayor tamaño convendría dotar a cada caso de su propio setup.
 
-**Dependencia de un servicio público.** Restful Booker está alojado en un entorno gratuito y puede presentar latencia o indisponibilidad intermitente, lo que afecta especialmente a las aserciones de tiempo de respuesta.
+**Dependencia de un servicio público.** Restful Booker está alojado en un entorno gratuito y puede presentar latencia o indisponibilidad intermitente. Por eso los umbrales de tiempo de respuesta se fijaron en 2000 ms: es un margen holgado para evitar falsos negativos por latencia del hosting, no un objetivo de performance.
 
 ---
 
